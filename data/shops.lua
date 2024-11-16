@@ -1,6 +1,6 @@
 return {
 	General = {
-		name = 'Shop',
+		name = '便利店',
 		blip = {
 			id = 59, colour = 69, scale = 0.8
 		}, inventory = {
@@ -33,7 +33,7 @@ return {
 	},
 
 	Liquor = {
-		name = 'Liquor Store',
+		name = '烟酒店',
 		blip = {
 			id = 93, colour = 69, scale = 0.8
 		}, inventory = {
@@ -59,7 +59,7 @@ return {
 	},
 
 	YouTool = {
-		name = 'YouTool',
+		name = '工具店',
 		blip = {
 			id = 402, colour = 69, scale = 0.8
 		}, inventory = {
@@ -73,7 +73,7 @@ return {
 	},
 
 	Ammunation = {
-		name = 'Ammunation',
+		name = '武装国度',
 		blip = {
 			id = 110, colour = 69, scale = 0.8
 		}, inventory = {
@@ -105,7 +105,7 @@ return {
 	},
 
 	PoliceArmoury = {
-		name = 'Police Armoury',
+		name = '警械库',
 		groups = shared.police,
 		blip = {
 			id = 110, colour = 84, scale = 0.8
@@ -157,7 +157,7 @@ return {
 	},
 
 	VendingMachineDrinks = {
-		name = 'Vending Machine',
+		name = '自动贩卖机',
 		inventory = {
 			{ name = 'water', price = 10 },
 			{ name = 'cola', price = 10 },
