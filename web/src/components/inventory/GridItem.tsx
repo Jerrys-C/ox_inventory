@@ -34,12 +34,16 @@ const GridItem: React.FC<GridItemProps> = ({
   const manager = useDragDropManager();
   const dispatch = useAppDispatch();
   const timerRef = useRef<number | null>(null);
+  const elementRef = useRef<HTMLDivElement>(null);
   const [isRotated, setIsRotated] = useState(item.rotated ?? false);
 
+  // Get dimensions - prioritize slot data (from Lua), fallback to defaults
+  const baseWidth = item.width ?? DEFAULT_ITEM_WIDTH;
+  const baseHeight = item.height ?? DEFAULT_ITEM_HEIGHT;
+  const width = isRotated ? baseHeight : baseWidth;
+  const height = isRotated ? baseWidth : baseHeight;
   const gridX = item.gridX ?? 0;
   const gridY = item.gridY ?? 0;
-  const width = isRotated ? (item.height ?? DEFAULT_ITEM_HEIGHT) : (item.width ?? DEFAULT_ITEM_WIDTH);
-  const height = isRotated ? (item.width ?? DEFAULT_ITEM_WIDTH) : (item.height ?? DEFAULT_ITEM_HEIGHT);
 
   const canDrag = useCallback(() => {
     return canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) && canCraftItem(item, inventoryType);
@@ -64,7 +68,7 @@ const GridItem: React.FC<GridItemProps> = ({
           : null,
       canDrag,
     }),
-    [inventoryType, item]
+    [inventoryType, item, canDrag]
   );
 
   const [{ isOver }, drop] = useDrop<DragSource, void, { isOver: boolean }>(
@@ -92,7 +96,7 @@ const GridItem: React.FC<GridItemProps> = ({
         inventoryType !== InventoryType.SHOP &&
         inventoryType !== InventoryType.CRAFTING,
     }),
-    [inventoryType, item]
+    [inventoryType, item, dispatch]
   );
 
   useNuiEvent('refreshSlots', (data: { items?: ItemsPayload | ItemsPayload[] }) => {
@@ -108,7 +112,8 @@ const GridItem: React.FC<GridItemProps> = ({
     manager.dispatch({ type: 'dnd-core/END_DRAG' });
   });
 
-  const connectRef = (element: HTMLDivElement) => drag(drop(element));
+  // Connect both drag and drop refs
+  drag(drop(elementRef));
 
   const handleContext = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -130,19 +135,31 @@ const GridItem: React.FC<GridItemProps> = ({
   const handleRotate = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setIsRotated(!isRotated);
-    // Note: Rotation is currently visual-only (client-side state).
-    // Server-side persistence would require backend changes to store rotated state per item.
   };
 
-  // Calculate item image size based on the smaller dimension
-  const imageSize = Math.min(width, height) * cellSize * 0.75;
+  // Calculate item image size - scale based on item dimensions
+  const itemPixelWidth = width * cellSize;
+  const itemPixelHeight = height * cellSize;
+  // For large items, use more of the available space
+  const imageScale = width > 1 || height > 1 ? 0.75 : 0.65;
+  const imageSize = Math.min(itemPixelWidth, itemPixelHeight) * imageScale;
+
+  // Determine if this is a large item (for layout adjustments)
+  const isLargeItem = width > 1 || height > 1;
+  
+  // Get item label
+  const itemLabel = item.metadata?.label || Items[item.name]?.label || item.name;
+
+  // Calculate responsive font sizes based on cell size
+  const baseFontSize = Math.max(10, Math.floor(cellSize * 0.16));
+  const smallFontSize = Math.max(9, Math.floor(cellSize * 0.14));
 
   return (
     <div
-      ref={connectRef}
+      ref={elementRef}
       onContextMenu={handleContext}
       onClick={handleClick}
-      className="grid-item"
+      className={`grid-item ${isLargeItem ? 'large' : 'small'}`}
       style={{
         gridColumn: `${gridX + 1} / span ${width}`,
         gridRow: `${gridY + 1} / span ${height}`,
@@ -151,19 +168,24 @@ const GridItem: React.FC<GridItemProps> = ({
             ? 'brightness(80%) grayscale(100%)'
             : undefined,
         opacity: isDragging ? 0.4 : 1.0,
-        border: isOver ? '2px dashed rgba(255,255,255,0.6)' : undefined,
+        cursor: canDrag() ? 'grab' : 'default',
       }}
     >
+      {/* Item image */}
       <div
         className="grid-item-image"
         style={{
-          backgroundImage: `url(${getItemUrl(item)}`,
+          backgroundImage: `url(${getItemUrl(item)})`,
           width: imageSize,
           height: imageSize,
           transform: isRotated ? 'rotate(90deg)' : undefined,
         }}
       />
 
+      {/* Hover overlay for drop target */}
+      {isOver && <div className="grid-item-drop-overlay" />}
+
+      {/* Content overlay */}
       <div
         className="grid-item-content"
         onMouseEnter={() => {
@@ -179,30 +201,39 @@ const GridItem: React.FC<GridItemProps> = ({
           }
         }}
       >
+        {/* Top section: count, weight, rotate button */}
         <div className="grid-item-header">
           <div className="grid-item-info">
-            <span className="grid-item-count">
-              {item.count ? `${item.count.toLocaleString('en-us')}x` : ''}
-            </span>
-            <span className="grid-item-weight">
-              {item.weight > 0
-                ? item.weight >= 1000
-                  ? `${(item.weight / 1000).toLocaleString('en-us', {
-                      minimumFractionDigits: 1,
-                    })}kg`
-                  : `${item.weight.toLocaleString('en-us', {
-                      minimumFractionDigits: 0,
-                    })}g`
-                : ''}
-            </span>
+            {item.count > 1 && (
+              <span className="grid-item-count" style={{ fontSize: baseFontSize }}>
+                {item.count.toLocaleString('en-us')}x
+              </span>
+            )}
+            {item.weight > 0 && (
+              <span className="grid-item-weight" style={{ fontSize: smallFontSize }}>
+                {item.weight >= 1000
+                  ? `${(item.weight / 1000).toLocaleString('en-us', { minimumFractionDigits: 1 })}kg`
+                  : `${item.weight.toLocaleString('en-us', { minimumFractionDigits: 0 })}g`}
+              </span>
+            )}
           </div>
-          {width > 1 || height > 1 ? (
-            <button className="grid-item-rotate-btn" onClick={handleRotate} title="Rotate item (R)">
+          {isLargeItem && (
+            <button 
+              className="grid-item-rotate-btn" 
+              onClick={handleRotate} 
+              title="Rotate (R)"
+              style={{ 
+                width: Math.max(18, cellSize * 0.3),
+                height: Math.max(18, cellSize * 0.3),
+                fontSize: Math.max(12, cellSize * 0.2)
+              }}
+            >
               ↻
             </button>
-          ) : null}
+          )}
         </div>
 
+        {/* Bottom section: durability bar, price, label */}
         <div className="grid-item-footer">
           {inventoryType !== 'shop' && item?.durability !== undefined && (
             <WeightBar percent={item.durability} durability />
@@ -210,13 +241,20 @@ const GridItem: React.FC<GridItemProps> = ({
           {inventoryType === 'shop' && item?.price !== undefined && item.price > 0 && (
             <div
               className="grid-item-price"
-              style={{ color: item.currency === 'money' || !item.currency ? '#2ECC71' : '#E74C3C' }}
+              style={{ 
+                color: item.currency === 'money' || !item.currency ? '#2ECC71' : '#E74C3C',
+                fontSize: baseFontSize 
+              }}
             >
               {Locale.$ || '$'}{item.price.toLocaleString('en-us')}
             </div>
           )}
-          <div className="grid-item-label">
-            {item.metadata?.label ? item.metadata.label : Items[item.name]?.label || item.name}
+          <div 
+            className="grid-item-label"
+            style={{ fontSize: smallFontSize }}
+            title={itemLabel}
+          >
+            {itemLabel}
           </div>
         </div>
       </div>

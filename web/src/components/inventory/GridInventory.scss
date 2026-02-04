@@ -1,59 +1,62 @@
 // Grid-Based Inventory Styles (Tarkov-inspired)
+// Responsive design with viewport-relative sizing
 
 // Theme colors
 $gridBg: #1a1a1e;
-$gridBgSecondary: #242428;
-$cellBg: rgba(30, 30, 35, 0.7);
-$cellBorder: rgba(60, 60, 70, 0.4);
-$cellBorderHighlight: rgba(80, 80, 90, 0.6);
-$itemBg: linear-gradient(135deg, rgba(40, 42, 50, 0.95) 0%, rgba(35, 37, 45, 0.95) 100%);
-$itemBorder: rgba(70, 75, 85, 0.6);
-$itemBorderHover: rgba(120, 130, 150, 0.8);
-$textPrimary: #e8e8ea;
-$textSecondary: #9a9a9e;
+$gridBgSecondary: #222226;
+$cellBg: rgba(35, 35, 42, 0.85);
+$cellBorder: rgba(50, 50, 58, 0.6);
+$cellBorderHighlight: rgba(85, 85, 95, 0.8);
+$itemBg: linear-gradient(145deg, rgba(42, 44, 52, 0.97) 0%, rgba(36, 38, 46, 0.97) 100%);
+$itemBorder: rgba(70, 75, 85, 0.8);
+$itemBorderHover: rgba(120, 130, 150, 1);
+$textPrimary: #f2f2f4;
+$textSecondary: #b0b0b8;
 $accentColor: #4a9eff;
-$validPlacement: rgba(74, 158, 255, 0.3);
-$invalidPlacement: rgba(255, 74, 74, 0.3);
+$validPlacement: rgba(74, 158, 255, 0.4);
+$invalidPlacement: rgba(255, 74, 74, 0.4);
+$dropOverlay: rgba(74, 158, 255, 0.3);
 $rareItem: #8b5cf6;
 $epicItem: #f59e0b;
 
+// Responsive wrapper
 .grid-inventory-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: 1vh;
+  padding: 1.5vh 1.5vw;
   background: $gridBg;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  max-height: 90vh;
+  border-radius: 0.8vh;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1vh 4vh rgba(0, 0, 0, 0.5);
+  max-height: 85vh;
   overflow: hidden;
 }
 
 .grid-inventory-header {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.8vh;
 }
 
 .grid-inventory-header-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 2vw;
 }
 
 .grid-inventory-label {
-  font-size: 14px;
+  font-size: clamp(12px, 1.4vh, 18px);
   font-weight: 600;
   color: $textPrimary;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.1em;
   white-space: nowrap;
 }
 
 .grid-inventory-weight {
-  font-size: 12px;
+  font-size: clamp(10px, 1.2vh, 16px);
   color: $textSecondary;
   font-weight: 500;
   white-space: nowrap;
@@ -63,22 +66,23 @@ $epicItem: #f59e0b;
   display: grid;
   position: relative;
   background: $gridBgSecondary;
-  border-radius: 4px;
-  padding: 2px;
+  border-radius: 0.5vh;
+  padding: 0.4vh;
   overflow: auto;
-  border: 1px solid rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  gap: 2px;
 }
 
 .grid-cell {
   background: $cellBg;
   border: 1px solid $cellBorder;
-  border-radius: 2px;
+  border-radius: 0.3vh;
   transition: background-color 0.15s ease, border-color 0.15s ease;
   min-width: 0;
   min-height: 0;
   
   &:hover {
-    background: rgba(40, 40, 48, 0.8);
+    background: rgba(48, 50, 60, 0.95);
     border-color: $cellBorderHighlight;
   }
   
@@ -95,22 +99,38 @@ $epicItem: #f59e0b;
   flex-direction: column;
   justify-content: space-between;
   background: $itemBg;
-  border: 1px solid $itemBorder;
-  border-radius: 4px;
-  cursor: pointer;
+  border: 2px solid $itemBorder;
+  border-radius: 0.4vh;
+  cursor: grab;
   overflow: hidden;
   z-index: 1;
-  transition: transform 0.1s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-  margin: 1px;
+  transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   
   &:hover {
     border-color: $itemBorderHover;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0.5vh 2vh rgba(0, 0, 0, 0.5);
     z-index: 2;
   }
   
   &:active {
+    cursor: grabbing;
     transform: scale(0.98);
+  }
+  
+  // Large items get more visual emphasis
+  &.large {
+    border-width: 2px;
+    
+    .grid-item-label {
+      padding: 0.4vh 0.6vh;
+    }
+  }
+  
+  // Small items have compact styling
+  &.small {
+    .grid-item-content {
+      padding: 0.3vh;
+    }
   }
 }
 
@@ -124,7 +144,20 @@ $epicItem: #f59e0b;
   background-size: contain;
   image-rendering: -webkit-optimize-contrast;
   pointer-events: none;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 0.3vh 0.6vh rgba(0, 0, 0, 0.6));
+}
+
+.grid-item-drop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $dropOverlay;
+  border: 2px dashed $accentColor;
+  border-radius: 0.3vh;
+  pointer-events: none;
+  z-index: 5;
 }
 
 .grid-item-content {
@@ -132,7 +165,7 @@ $epicItem: #f59e0b;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  padding: 4px;
+  padding: 0.4vh;
   position: relative;
   z-index: 1;
 }
@@ -141,6 +174,7 @@ $epicItem: #f59e0b;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 0.3vh;
 }
 
 .grid-item-info {
@@ -150,74 +184,73 @@ $epicItem: #f59e0b;
 }
 
 .grid-item-count {
-  font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: $textPrimary;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+  line-height: 1.2;
 }
 
 .grid-item-weight {
-  font-size: 10px;
   color: $textSecondary;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+  line-height: 1.2;
 }
 
 .grid-item-rotate-btn {
-  width: 18px;
-  height: 18px;
   padding: 0;
   border: none;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0.3vh;
+  background: rgba(0, 0, 0, 0.65);
   color: $textSecondary;
-  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.2s ease;
+  flex-shrink: 0;
   
   &:hover {
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.85);
     color: $textPrimary;
+    transform: scale(1.1);
   }
   
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.95) rotate(90deg);
   }
 }
 
 .grid-item-footer {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.2vh;
 }
 
 .grid-item-price {
-  font-size: 11px;
-  font-weight: 600;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
   text-align: right;
 }
 
 .grid-item-label {
-  font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   color: $textPrimary;
   text-transform: uppercase;
   text-align: center;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 2px 4px;
-  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 0.3vh 0.4vh;
+  border-radius: 0.2vh;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  max-width: 100%;
 }
 
 .grid-drag-preview {
   position: relative;
-  border-radius: 4px;
+  border-radius: 0.4vh;
   pointer-events: none;
   z-index: 10;
   transition: background-color 0.1s ease;
@@ -233,18 +266,18 @@ $epicItem: #f59e0b;
   }
 }
 
-// Rarity glow effects (can be applied via classes)
+// Rarity glow effects
 .grid-item.rare {
   border-color: $rareItem;
-  box-shadow: 0 0 10px rgba($rareItem, 0.3);
+  box-shadow: 0 0 1.2vh rgba($rareItem, 0.5);
 }
 
 .grid-item.epic {
   border-color: $epicItem;
-  box-shadow: 0 0 10px rgba($epicItem, 0.3);
+  box-shadow: 0 0 1.2vh rgba($epicItem, 0.5);
 }
 
-// Grid overlay pattern
+// Subtle grid overlay pattern
 .grid-inventory-container::before {
   content: '';
   position: absolute;
@@ -253,18 +286,18 @@ $epicItem: #f59e0b;
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
   pointer-events: none;
   z-index: 0;
 }
 
-// Animation for new items
+// Item appear animation
 @keyframes itemAppear {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.92);
   }
   to {
     opacity: 1;
@@ -274,4 +307,54 @@ $epicItem: #f59e0b;
 
 .grid-item {
   animation: itemAppear 0.2s ease-out;
+}
+
+// Custom scrollbar
+.grid-inventory-container::-webkit-scrollbar {
+  width: 0.6vh;
+  height: 0.6vh;
+}
+
+.grid-inventory-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 0.3vh;
+}
+
+.grid-inventory-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 0.3vh;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+}
+
+// Responsive adjustments
+@media (max-height: 720px) {
+  .grid-inventory-wrapper {
+    padding: 1vh 1vw;
+    gap: 0.8vh;
+  }
+  
+  .grid-inventory-label {
+    font-size: 11px;
+  }
+  
+  .grid-inventory-weight {
+    font-size: 10px;
+  }
+}
+
+@media (min-height: 1080px) {
+  .grid-inventory-wrapper {
+    padding: 2vh 2vw;
+    gap: 1.2vh;
+  }
+}
+
+@media (min-height: 1440px) {
+  .grid-inventory-wrapper {
+    padding: 2.5vh 2.5vw;
+    gap: 1.5vh;
+  }
 }

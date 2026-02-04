@@ -17,7 +17,19 @@ import GridItem from './GridItem';
 import WeightBar from '../utils/WeightBar';
 import './GridInventory.scss';
 
-const CELL_SIZE = 55; // Size of each grid cell in pixels
+// Responsive cell size based on viewport
+const getResponsiveCellSize = (): number => {
+  const viewportHeight = window.innerHeight;
+  const viewportWidth = window.innerWidth;
+  
+  // Base size on the smaller viewport dimension for better scaling
+  const baseSize = Math.min(viewportHeight, viewportWidth);
+  
+  // Scale cell size: ~5.5% of viewport for standard screens
+  // Min 48px, Max 72px for usability
+  const calculatedSize = Math.floor(baseSize * 0.055);
+  return Math.max(48, Math.min(72, calculatedSize));
+};
 
 interface GridInventoryProps {
   inventory: Inventory;
@@ -26,6 +38,9 @@ interface GridInventoryProps {
 const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const isBusy = useAppSelector((state) => state.inventory.isBusy);
+  
+  // Use responsive cell size
+  const [cellSize] = useState(() => getResponsiveCellSize());
   
   const gridWidth = inventory.gridWidth ?? DEFAULT_GRID_WIDTH;
   const gridHeight = inventory.gridHeight ?? DEFAULT_GRID_HEIGHT;
@@ -67,10 +82,7 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
       if (!gridRef.current) return;
 
       const rect = gridRef.current.getBoundingClientRect();
-      // Default dimensions for drag preview. In a full implementation, 
-      // this would retrieve dimensions from the react-dnd drag state.
-      // Currently using 1x1 as a fallback since react-dnd's useDrop 
-      // doesn't provide item data in dragOver events.
+      // Default dimensions for drag preview
       const itemWidth = 1;
       const itemHeight = 1;
 
@@ -78,7 +90,7 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
         e.clientX,
         e.clientY,
         rect,
-        CELL_SIZE,
+        cellSize,
         itemWidth,
         itemHeight,
         gridWidth,
@@ -103,7 +115,7 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
         valid,
       });
     },
-    [gridWidth, gridHeight, inventory.items]
+    [gridWidth, gridHeight, inventory.items, cellSize]
   );
 
   const handleDragLeave = useCallback(() => {
@@ -132,10 +144,10 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
         className="grid-inventory-container"
         ref={gridRef}
         style={{
-          width: gridWidth * CELL_SIZE,
-          height: gridHeight * CELL_SIZE,
-          gridTemplateColumns: `repeat(${gridWidth}, ${CELL_SIZE}px)`,
-          gridTemplateRows: `repeat(${gridHeight}, ${CELL_SIZE}px)`,
+          width: gridWidth * cellSize + 8,
+          height: gridHeight * cellSize + 8,
+          gridTemplateColumns: `repeat(${gridWidth}, ${cellSize}px)`,
+          gridTemplateRows: `repeat(${gridHeight}, ${cellSize}px)`,
         }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -161,7 +173,7 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
             inventoryType={inventory.type}
             inventoryGroups={inventory.groups}
             inventoryId={inventory.id}
-            cellSize={CELL_SIZE}
+            cellSize={cellSize}
           />
         ))}
 

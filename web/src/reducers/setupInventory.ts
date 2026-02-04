@@ -20,10 +20,11 @@ const setupGridPositions = (items: Slot[], gridWidth: number, gridHeight: number
       continue;
     }
     
-    // Get item dimensions from Items store or use defaults
+    // Get item dimensions - prioritize slot data (from Lua), then Items store, then defaults
+    // This ensures width/height defined in Lua item definitions are properly used
     const itemData = Items[item.name];
-    const itemWidth = itemData?.width ?? item.width ?? DEFAULT_ITEM_WIDTH;
-    const itemHeight = itemData?.height ?? item.height ?? DEFAULT_ITEM_HEIGHT;
+    const itemWidth = item.width ?? itemData?.width ?? DEFAULT_ITEM_WIDTH;
+    const itemHeight = item.height ?? itemData?.height ?? DEFAULT_ITEM_HEIGHT;
     
     // If item already has grid position, validate it
     if (item.gridX !== undefined && item.gridY !== undefined) {
