@@ -15,4 +15,7 @@ export type Inventory = {
   maxWeight?: number;
   label?: string;
   groups?: Record<string, number>;
+  // Grid-based inventory properties
+  gridWidth?: number;  // Grid width in cells (columns)
+  gridHeight?: number; // Grid height in cells (rows)
 };
