@@ -34,7 +34,7 @@ const GridItem: React.FC<GridItemProps> = ({
   const manager = useDragDropManager();
   const dispatch = useAppDispatch();
   const timerRef = useRef<number | null>(null);
-  const elementRef = useRef<HTMLDivElement>(null);
+  const elementRef = useRef<HTMLDivElement | null>(null);
   const [isRotated, setIsRotated] = useState(item.rotated ?? false);
 
   // Get dimensions - prioritize slot data (from Lua), fallback to defaults
@@ -112,8 +112,13 @@ const GridItem: React.FC<GridItemProps> = ({
     manager.dispatch({ type: 'dnd-core/END_DRAG' });
   });
 
-  // Connect both drag and drop refs
-  drag(drop(elementRef));
+  // Connect both drag and drop refs using a callback ref
+  const connectDragDrop = useCallback((node: HTMLDivElement | null) => {
+    elementRef.current = node;
+    if (node) {
+      drag(drop(node));
+    }
+  }, [drag, drop]);
 
   const handleContext = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -156,7 +161,7 @@ const GridItem: React.FC<GridItemProps> = ({
 
   return (
     <div
-      ref={elementRef}
+      ref={connectDragDrop}
       onContextMenu={handleContext}
       onClick={handleClick}
       className={`grid-item ${isLargeItem ? 'large' : 'small'}`}

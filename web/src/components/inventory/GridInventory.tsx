@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useCallback } from 'react';
+import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import { Inventory, SlotWithItem } from '../../typings';
 import { useAppSelector } from '../../store';
 import { getTotalWeight, isSlotWithItem } from '../../helpers';
@@ -17,8 +17,14 @@ import GridItem from './GridItem';
 import WeightBar from '../utils/WeightBar';
 import './GridInventory.scss';
 
+// Grid padding in pixels (matches SCSS padding)
+const GRID_PADDING = 8;
+// Min/max cell sizes for usability
+const MIN_CELL_SIZE = 48;
+const MAX_CELL_SIZE = 72;
+
 // Responsive cell size based on viewport
-const getResponsiveCellSize = (): number => {
+const calculateCellSize = (): number => {
   const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
   
@@ -26,9 +32,8 @@ const getResponsiveCellSize = (): number => {
   const baseSize = Math.min(viewportHeight, viewportWidth);
   
   // Scale cell size: ~5.5% of viewport for standard screens
-  // Min 48px, Max 72px for usability
   const calculatedSize = Math.floor(baseSize * 0.055);
-  return Math.max(48, Math.min(72, calculatedSize));
+  return Math.max(MIN_CELL_SIZE, Math.min(MAX_CELL_SIZE, calculatedSize));
 };
 
 interface GridInventoryProps {
@@ -39,8 +44,17 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const isBusy = useAppSelector((state) => state.inventory.isBusy);
   
-  // Use responsive cell size
-  const [cellSize] = useState(() => getResponsiveCellSize());
+  // Responsive cell size with resize listener
+  const [cellSize, setCellSize] = useState(() => calculateCellSize());
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setCellSize(calculateCellSize());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const gridWidth = inventory.gridWidth ?? DEFAULT_GRID_WIDTH;
   const gridHeight = inventory.gridHeight ?? DEFAULT_GRID_HEIGHT;
@@ -144,8 +158,8 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
         className="grid-inventory-container"
         ref={gridRef}
         style={{
-          width: gridWidth * cellSize + 8,
-          height: gridHeight * cellSize + 8,
+          width: gridWidth * cellSize + GRID_PADDING,
+          height: gridHeight * cellSize + GRID_PADDING,
           gridTemplateColumns: `repeat(${gridWidth}, ${cellSize}px)`,
           gridTemplateRows: `repeat(${gridHeight}, ${cellSize}px)`,
         }}
