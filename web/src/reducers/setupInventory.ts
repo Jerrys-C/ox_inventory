@@ -93,7 +93,7 @@ export const setupInventoryReducer: CaseReducer<
 
       foundItem.durability = itemDurability(foundItem.metadata, curTime);
       return foundItem;
-    }).filter(item => item.name); // Only keep items with names for grid layout
+    }).filter(item => item.name); // Grid-based inventory: empty cells are represented by grid cells, not placeholder items
     
     state.leftInventory = {
       ...leftInventory,
@@ -118,7 +118,7 @@ export const setupInventoryReducer: CaseReducer<
 
       foundItem.durability = itemDurability(foundItem.metadata, curTime);
       return foundItem;
-    }).filter(item => item.name); // Only keep items with names for grid layout
+    }).filter(item => item.name); // Grid-based inventory: empty cells are represented by grid cells, not placeholder items
     
     state.rightInventory = {
       ...rightInventory,

@@ -67,7 +67,10 @@ const GridInventory: React.FC<GridInventoryProps> = ({ inventory }) => {
       if (!gridRef.current) return;
 
       const rect = gridRef.current.getBoundingClientRect();
-      // Get dragged item dimensions (this would come from drag data in a real implementation)
+      // Default dimensions for drag preview. In a full implementation, 
+      // this would retrieve dimensions from the react-dnd drag state.
+      // Currently using 1x1 as a fallback since react-dnd's useDrop 
+      // doesn't provide item data in dragOver events.
       const itemWidth = 1;
       const itemHeight = 1;
 

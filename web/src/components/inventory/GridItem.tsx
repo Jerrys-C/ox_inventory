@@ -130,7 +130,8 @@ const GridItem: React.FC<GridItemProps> = ({
   const handleRotate = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setIsRotated(!isRotated);
-    // TODO: Send rotation update to server
+    // Note: Rotation is currently visual-only (client-side state).
+    // Server-side persistence would require backend changes to store rotated state per item.
   };
 
   // Calculate item image size based on the smaller dimension
