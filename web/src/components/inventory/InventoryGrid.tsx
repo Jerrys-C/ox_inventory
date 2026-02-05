@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Inventory } from '../../typings';
+import { Inventory, Slot } from '../../typings';
 import WeightBar from '../utils/WeightBar';
 import InventorySlot from './InventorySlot';
 import { getTotalWeight } from '../../helpers';
@@ -10,7 +10,7 @@ import { isSlotWithItem } from '../../helpers';
 
 const PAGE_SIZE = 30;
 
-const deriveGridPlacement = (slotEntry: any): React.CSSProperties => {
+const deriveGridPlacement = (slotEntry: Slot): React.CSSProperties => {
   if (!isSlotWithItem(slotEntry)) return {};
   const catalogEntry = Items[slotEntry.name];
   const acrossCount = catalogEntry?.hCells ?? 1;
