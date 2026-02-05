@@ -5,8 +5,24 @@ import InventorySlot from './InventorySlot';
 import { getTotalWeight } from '../../helpers';
 import { useAppSelector } from '../../store';
 import { useIntersection } from '../../hooks/useIntersection';
+import { Items } from '../../store/items';
+import { isSlotWithItem } from '../../helpers';
 
 const PAGE_SIZE = 30;
+
+const deriveGridPlacement = (slotEntry: any): React.CSSProperties => {
+  if (!isSlotWithItem(slotEntry)) return {};
+  const catalogEntry = Items[slotEntry.name];
+  const acrossCount = catalogEntry?.hCells ?? 1;
+  const downCount = catalogEntry?.vCells ?? 1;
+  const placementRules: React.CSSProperties = {};
+  if (acrossCount > 1) placementRules.gridColumn = `span ${acrossCount}`;
+  if (downCount > 1) placementRules.gridRow = `span ${downCount}`;
+  if (acrossCount > 1 || downCount > 1) {
+    placementRules.backgroundSize = `${7 * Math.max(acrossCount, downCount)}vh`;
+  }
+  return placementRules;
+};
 
 const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
   const weight = useMemo(
@@ -47,6 +63,7 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
                 inventoryType={inventory.type}
                 inventoryGroups={inventory.groups}
                 inventoryId={inventory.id}
+                gridStyle={deriveGridPlacement(item)}
               />
             ))}
           </>

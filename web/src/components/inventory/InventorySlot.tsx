@@ -21,10 +21,11 @@ interface SlotProps {
   inventoryType: Inventory['type'];
   inventoryGroups: Inventory['groups'];
   item: Slot;
+  gridStyle?: React.CSSProperties;
 }
 
 const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> = (
-  { item, inventoryId, inventoryType, inventoryGroups },
+  { item, inventoryId, inventoryType, inventoryGroups, gridStyle },
   ref
 ) => {
   const manager = useDragDropManager();
@@ -126,6 +127,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
       onClick={handleClick}
       className="inventory-slot"
       style={{
+        ...gridStyle,
         filter:
           !canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) || !canCraftItem(item, inventoryType)
             ? 'brightness(80%) grayscale(100%)'
@@ -133,6 +135,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
         opacity: isDragging ? 0.4 : 1.0,
         backgroundImage: `url(${item?.name ? getItemUrl(item as SlotWithItem) : 'none'}`,
         border: isOver ? '1px dashed rgba(255,255,255,0.4)' : '',
+        backgroundSize: gridStyle?.backgroundSize,
       }}
     >
       {isSlotWithItem(item) && (

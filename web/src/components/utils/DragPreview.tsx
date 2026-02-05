@@ -1,6 +1,7 @@
 import React, { RefObject, useRef } from 'react';
 import { DragLayerMonitor, useDragLayer, XYCoord } from 'react-dnd';
 import { DragSource } from '../../typings';
+import { Items } from '../../store/items';
 
 interface DragLayerProps {
   data: DragSource;
@@ -48,6 +49,10 @@ const DragPreview: React.FC = () => {
     isDragging: monitor.isDragging(),
   }));
 
+  const draggedItemRecord = data?.item?.name ? Items[data.item.name] : undefined;
+  const previewAcross = draggedItemRecord?.hCells ?? 1;
+  const previewDown = draggedItemRecord?.vCells ?? 1;
+
   return (
     <>
       {isDragging && currentOffset && data.item && (
@@ -57,6 +62,9 @@ const DragPreview: React.FC = () => {
           style={{
             transform: `translate(${currentOffset.x}px, ${currentOffset.y}px)`,
             backgroundImage: data.image,
+            width: `${7.7 * previewAcross}vh`,
+            height: `${7.7 * previewDown}vh`,
+            backgroundSize: `${7 * Math.max(previewAcross, previewDown)}vh`,
           }}
         />
       )}

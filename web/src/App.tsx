@@ -87,6 +87,13 @@ debugData([
   },
 ]);
 
+// Seed dimension data for dev preview
+Items['water'] = { ...Items['water']!, hCells: 1, vCells: 2 };
+Items['burger'] = { ...Items['burger']!, hCells: 2, vCells: 2 };
+Items['armour'] = { name: 'armour', label: 'Bulletproof Vest', stack: false, usable: true, close: true, count: 0, hCells: 2, vCells: 3 };
+Items['parachute'] = { name: 'parachute', label: 'Parachute', stack: false, usable: true, close: true, count: 0, hCells: 3, vCells: 3 };
+Items['radio'] = { name: 'radio', label: 'Radio', stack: false, usable: true, close: true, count: 0, hCells: 2, vCells: 1 };
+
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const manager = useDragDropManager();
