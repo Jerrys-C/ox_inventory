@@ -10,6 +10,8 @@ export const Items: {
     stack: true,
     usable: true,
     count: 0,
+    hCells: 1,
+    vCells: 2,
   },
   burger: {
     name: 'burger',
@@ -18,5 +20,7 @@ export const Items: {
     stack: false,
     usable: false,
     count: 0,
+    hCells: 2,
+    vCells: 2,
   },
 };

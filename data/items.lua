@@ -71,6 +71,8 @@ return {
 	['burger'] = {
 		label = 'Burger',
 		weight = 220,
+		hCells = 2,
+		vCells = 2,
 		client = {
 			status = { hunger = 200000 },
 			anim = 'eating',
@@ -95,6 +97,8 @@ return {
 	['parachute'] = {
 		label = 'Parachute',
 		weight = 8000,
+		hCells = 3,
+		vCells = 3,
 		stack = false,
 		client = {
 			anim = { dict = 'clothingshirt', clip = 'try_shirt_positive_d' },
@@ -177,6 +181,8 @@ return {
 	['water'] = {
 		label = 'Water',
 		weight = 500,
+		hCells = 1,
+		vCells = 2,
 		client = {
 			status = { thirst = 200000 },
 			anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
@@ -190,6 +196,8 @@ return {
 	['radio'] = {
 		label = 'Radio',
 		weight = 1000,
+		hCells = 2,
+		vCells = 1,
 		stack = false,
 		allowArmed = true
 	},
@@ -197,6 +205,8 @@ return {
 	['armour'] = {
 		label = 'Bulletproof Vest',
 		weight = 3000,
+		hCells = 2,
+		vCells = 3,
 		stack = false,
 		client = {
 			anim = { dict = 'clothingshirt', clip = 'try_shirt_positive_d' },
